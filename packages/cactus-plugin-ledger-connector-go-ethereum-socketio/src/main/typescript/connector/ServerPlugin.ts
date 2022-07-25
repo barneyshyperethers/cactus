@@ -53,6 +53,103 @@ export class ServerPlugin {
       return false;
     }
   }
+  // Define an arbitrary function and implement it according to specifications of end-chains
+  /*
+   * getBlock
+   * Get  block by Hash, latest or pending
+   *
+   * @param {Object} args JSON Object
+   * {
+   *      "blockHashOrBlockNumber":<define what we search for in blockchain>,
+   *      "hashesOrObjects":<define if transactions are returned as objects if true, or hashes if false>,
+   *      "reqID":<request ID> (option)
+   * }
+   * @return {Object} JSON object
+   */
+  getBlock(args: any) {
+    // * The Web3 API can be used synchronously, but each function is always an asynchronous specification because of the use of other APIs such as REST,
+    return new Promise((resolve, reject) => {
+      logger.info("getNumericBalance start");
+      let retObj: Record<string, any>;
+
+      const blockHashOrBlockNumber = args.args.args[0];
+      const hashesOrObjects = args.args.args[1];
+      const reqID = args["reqID"];
+
+      if (blockHashOrBlockNumber === undefined) {
+        const emsg = "JSON parse error!";
+        logger.info(emsg);
+        retObj = {
+          resObj: {
+            status: 504,
+            errorDetail: emsg,
+          },
+        };
+        return reject(retObj);
+      }
+      const ethargs = blockHashOrBlockNumber;
+      const ethargs1 = hashesOrObjects; // right now I would test only wiht false statement
+      // Handling exceptions to absorb the difference of interest.
+      try {
+        const web3 = new Web3();
+        web3.setProvider(
+          new web3.providers.HttpProvider(configRead("ledgerUrl")),
+        );
+        const blockObject = web3.eth.getBlock(blockHashOrBlockNumber,hashesOrObjects);
+        const amountVal = balance.toNumber();
+        //t.equal(typeof blockObject, "object", "Block response type is OK :-)");
+        retObj = blockObject ; //{
+       //   resObj: {
+       //     status: 200,
+        //    parameter1: parameter1value,
+            // t.comment(JSON.stringify(currentBlock));
+  //makes the information in to string
+
+            /*
+number - Number: The block number. null if a pending block.
+hash 32 Bytes - String: Hash of the block. null if a pending block.
+parentHash 32 Bytes - String: Hash of the parent block.
+nonce 8 Bytes - String: Hash of the generated proof-of-work. null if a pending block.
+sha3Uncles 32 Bytes - String: SHA3 of the uncles data in the block.
+logsBloom 256 Bytes - String: The bloom filter for the logs of the block. null if a pending block.
+transactionsRoot 32 Bytes - String: The root of the transaction trie of the block.
+stateRoot 32 Bytes - String: The root of the final state trie of the block.
+miner - String: The address of the beneficiary to whom the mining rewards were given.
+difficulty - String: Integer of the difficulty for this block.
+totalDifficulty - String: Integer of the total difficulty of the chain until this block.
+extraData - String: The “extra data” field of this block.
+size - Number: Integer the size of this block in bytes.
+gasLimit - Number: The maximum gas allowed in this block.
+gasUsed - Number: The total used gas by all transactions in this block.
+timestamp - Number: The unix timestamp for when the block was collated.
+transactions - Array: Array of transaction objects, or 32 Bytes transaction hashes depending on the returnTransactionObjects parameter.
+uncles - Array: Array of uncle hashes.
+            */
+       //   },
+      //  };
+        if (reqID !== undefined) {
+          retObj["id"] = reqID;
+        }
+        logger.debug(`##getNumericBalance: retObj: ${JSON.stringify(retObj)}`);
+        return resolve(retObj);
+      } catch (e) {
+        retObj = {
+          resObj: {
+            status: 504,
+            errorDetail: safeStringify(e),
+          },
+        };
+        logger.error(retObj);
+
+        if (reqID !== undefined) {
+          retObj["id"] = reqID;
+        }
+        logger.debug(`##getNumericBalance: retObj: ${JSON.stringify(retObj)}`);
+
+        return reject(retObj);
+      }
+    });
+  }
 
   // Define an arbitrary function and implement it according to specifications of end-chains
   /*

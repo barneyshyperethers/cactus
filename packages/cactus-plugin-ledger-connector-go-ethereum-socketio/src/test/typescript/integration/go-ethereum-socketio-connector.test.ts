@@ -221,6 +221,29 @@ describe("Go-Ethereum-SocketIO connector tests", () => {
     expect(response.amount).toEqual(constTestAccBalance);
   });
 
+// go-ethereum-socketio-connector.test.ts
+
+  /**
+   * Test ServerPlugin getBlock function.
+   */
+   test("Function getBlock returns object of the block", async () => {
+    const method = { type: "function", command: "getBlock" };
+    const argsParam = {
+      args: ["latest"]
+    };
+
+    const response = await apiClient.sendSyncRequest(
+      {},
+      method,
+      argsParam,
+    );
+
+    expect(response).toBeTruthy();
+    expect(response.status).toEqual(200);
+    expect(response.hash).not.stringMatching(/0x0/);
+   
+  });
+
   /**
    * Test ServerPlugin transferNumericAsset function.
    * @deprecated - Not usable, can't unlock account remotely at the moment.
@@ -373,7 +396,7 @@ describe("Go-Ethereum-SocketIO connector tests", () => {
     // Create monitoring promise and subscription
     let monitorSub: any;
     const newBlockPromise = new Promise<any>((resolve, reject) => {
-      monitorSub = apiClient.watchBlocksV1().subscribe({
+      monitorSub = apiClientPIERWSZYkrokOKokkdfsok.watchBlocksV1().subscribe({
         next: block => resolve(block),
         error: err => reject(err),
         complete: () => reject("Unexpected watchBlocksV1 completion - reject."),
